@@ -1,15 +1,18 @@
 import pygame
 import sys
 from Scripts.game_state import GameStateManager
-from Scripts.player import Player
 
 #Constants
-SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720
+
 FPS = 60
 
 #Initialize Pygame
 pygame.init()
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+# Get the screen resolution of the user's monitor
+screen_width, screen_height = 1280, 720
+
+# Create the screen in fullscreen mode
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
 pygame.display.set_caption("Feraz")
 clock = pygame.time.Clock()
 gsm = GameStateManager(screen)
@@ -24,10 +27,9 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
         gsm.handle_events(events)
-        gsm.update_logic()
-        screen.fill(0, 0, 0)
+        gsm.update_logic(events)
+        screen.fill((0, 0, 0))
         gsm.update_graphics()
-        Player.update()
         pygame.display.flip()
         clock.tick(FPS)
     pygame.quit()   

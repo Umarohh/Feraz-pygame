@@ -1,52 +1,96 @@
+import os
 import pygame
+from Scripts.tile import Tile, Tilemap
 
 class Level:
-    def __init__(self, screen, camera_x):
+    def __init__(self, screen, camera, player, level_name=None):
         """Initialize the parent level class"""
         self.screen = screen
         self.completed = False  # Track if the level is completed
-        self.camera_x = camera_x
-        self.bg_layer_1 = None
-        self.bg_layer_2 = None
-        self.bg_layer_3 = None
-        self.bg_layer_4 = None
-        self.bg_layer_5 = None
+        self.camera = camera
+        self.player = player
+        self.bg_layers = []
+        self.bg_layer_speeds = [0.003, 0.007, 0.009, 0.08, 0.2]
+        self.bg_layer_widths = []
+        self.tilemap = None
 
+        if level_name is not None:
+            self.load_level_assets(level_name)
 
-        self.bg_layer_1_speed = 0.1
-        self.bg_layer_2_speed = 0.3
-        self.bg_layer_3_speed = 0.5
-        self.bg_layer_4_speed = 0.7
-        self.bg_layer_5_speed = 1.1
 
 
     def check_completion_condition(self): # Ensures all levels have a completion condition regardless of specific update method
-        pass 
+        return False
        
     def is_completed(self):
         """Return whether the level is completed to outside classes such as level_manager"""
         return self.completed
     
-    def update(self):   
-        """Ensures all levels update regardless of specific update method"""
-        pass
+    def update(self, events):
+        """Update level logic and shared player/camera state."""
+        self.update_logic()
+        if self.check_completion_condition():
+            self.completed = True
+        if self.tilemap is not None:
+            self.tilemap.update()
+            self.player.update(events, self.tilemap.tiles)
+            self.camera.update(self.player)
 
-    def draw(self): 
-        """Ensures all levels render regardless of specific update method"""
-        pass
+    def draw(self):
+        """Render level content and the shared player."""
+        self.render_parallax(self.screen, self.camera.camera.x)
+        if self.tilemap is not None:
+            self.tilemap.render(self.screen, self.camera)
+        self.player.render(self.screen, self.camera)
 
-    def load_backgrounds(self, bg_layer_1_path, bg_layer_2_path, bg_layer_3_path, bg_layer_4_path, bg_layer_5_path):
-        """Load background images for all layers"""
-        self.bg_layer_1 = pygame.image.load(bg_layer_1_path).convert()
-        self.bg_layer_2 = pygame.image.load(bg_layer_2_path).convert()
-        self.bg_layer_3 = pygame.image.load(bg_layer_3_path).convert()
-        self.bg_layer_4 = pygame.image.load(bg_layer_4_path).convert()
-        self.bg_layer_5 = pygame.image.load(bg_layer_5_path).convert()
+    def load_level_assets(self, level_name):
+        """Load a level map and all PNG backgrounds from its asset folder."""
+        level_path = os.path.join("Assets", "Levels", level_name)
+        map_path = next(
+            os.path.join(level_path, "Map", filename)
+            for filename in os.listdir(os.path.join(level_path, "Map"))
+            if filename.endswith(".txt")
+        )
+
+        Tile.load_tile_images()
+        self.tilemap = Tilemap()
+        self.tilemap.load_from_file(map_path)
+
+        self.reset_player_and_camera()
+
+    def reset_player_and_camera(self, spawn_position=(0, 0)):
+        """Reset shared gameplay state for this level."""
+        if self.tilemap is None:
+            return
+        self.camera.set_level_bounds(self.tilemap.pixel_width, self.tilemap.pixel_height)
+        self.player.set_level_bounds(self.tilemap.pixel_width, self.tilemap.pixel_height)
+        self.player.reset_position(*spawn_position)
+        self.camera.camera_pos.update(0, 0)
+        self.camera.target_base_y = None
+        self.camera.camera.topleft = (0, 0)
+
+    def on_enter(self):
+        """Prepare this level when it becomes the active scene."""
+        self.reset_player_and_camera()
+
+    def load_backgrounds(self, *bg_paths):
+        """Load background images for all layers and track their widths"""
+        for path in bg_paths:
+            bg = pygame.image.load(path).convert_alpha()
+            self.bg_layers.append(bg)
+            self.bg_layer_widths.append(bg.get_width())
 
     def render_parallax(self, screen, camera_x):
         """Render parallax layers based on the camera position"""
-        screen.blit(self.bg_layer_1, (camera_x * self.bg_layer_1_speed, 0))
-        screen.blit(self.bg_layer_2, (camera_x * self.bg_layer_2_speed, 0))
-        screen.blit(self.bg_layer_3, (camera_x * self.bg_layer_3_speed, 0))
-        screen.blit(self.bg_layer_4, (camera_x * self.bg_layer_4_speed, 0))
-        screen.blit(self.bg_layer_5, (camera_x * self.bg_layer_5_speed, 0))
+        for i, bg in enumerate(self.bg_layers):
+            speed = self.bg_layer_speeds[i]  # Speed for this specific layer
+            width = self.bg_layer_widths[i]  # Width of the current background layer
+
+            # Calculate the x position of the layer with scrolling effect
+            scroll_x = -camera_x * speed
+            start_x = int(scroll_x) % width  # Wrapping point for seamless cycling
+
+            # Draw the backgrounds in a loop, covering the screen seamlessly
+            for offset in (-1, 0, 1):
+                x = start_x + offset * width
+                screen.blit(bg, (x, 0))  # Draw the background at the calculated position

@@ -1,10 +1,11 @@
 import pygame
-from Levels.level_dependancies import Level
-from Scripts.player import Player
+from Scenes.Levels.level_dependancies import Level
+from Scripts.tile import Tile
+from Scripts.tile import Tilemap
 
 class Level3(Level):
-    def __init__(self, screen):
-        super().__init__(screen)  # Calls Level's __init__, so screen and not completed are set
+    def __init__(self, screen, camera, player):
+        super().__init__(screen, camera, player)
 
     def update_logic(self):
         """Level 3 logic"""
