@@ -1,6 +1,6 @@
 # Feraz
 
-A 2D scrolling platformer built with Python and Pygame. Story, cutscenes, all art, and code is being worked on. 
+A 2D scrolling platformer built with Python and Pygame.
 
 ![Feraz gameplay demo](Assets/Demo/demo.gif)
 
