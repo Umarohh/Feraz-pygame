@@ -12,10 +12,10 @@ class SceneManager:
     """Class to manage the order and updating of levels of the game"""
     def __init__(self, screen):
         self.screen = screen
-        self.camera = Camera() # Create a camera object
+        self.camera = Camera(*screen.get_size()) # Create a camera object
         self.player = Player(0, 0)
         self.scenes = [Cutscene1(self.screen), Level1(self.screen, self.camera, self.player), Level2(self.screen, self.camera, self.player), Cutscene2(self.screen), Level3(self.screen, self.camera, self.player), Cutscene3(self.screen)]  # Chronological order of levels
-        self.current_scene_index = 1  # Start at Level 1
+        self.current_scene_index = 0  # Start at Cutscene 1
         self.current_scene = self.scenes[self.current_scene_index]  # The scene is the currently indexed scene
         self.current_scene.on_enter()
 
@@ -27,6 +27,16 @@ class SceneManager:
             if hasattr(self.current_scene, "on_enter"):
                 self.current_scene.on_enter()
 
+    def respawn_player(self):
+        """Reset the player at the current scene's starting position."""
+        if hasattr(self.current_scene, "reset_player_and_camera"):
+            self.current_scene.reset_player_and_camera()
+
+    def restart(self):
+        """Start the scene sequence again from cutscene 1."""
+        self.current_scene_index = 0
+        self.current_scene = self.scenes[self.current_scene_index]
+        self.current_scene.on_enter()
 
 
 

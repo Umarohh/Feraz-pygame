@@ -1,5 +1,10 @@
-import pygame
+import os
 import sys
+import pygame
+
+# Asset paths are relative; run from the bundle dir when frozen by PyInstaller
+os.chdir(getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__))))
+
 from Scripts.game_state import GameStateManager
 
 #Constants
@@ -12,7 +17,7 @@ pygame.init()
 screen_width, screen_height = 1280, 720
 
 # Create the screen in fullscreen mode
-screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN | pygame.SCALED)
 pygame.display.set_caption("Feraz")
 clock = pygame.time.Clock()
 gsm = GameStateManager(screen)

@@ -3,6 +3,8 @@ import pygame
 from Scripts.tile import Tile, Tilemap
 
 class Level:
+    spawn_position = (0, 0)
+
     def __init__(self, screen, camera, player, level_name=None):
         """Initialize the parent level class"""
         self.screen = screen
@@ -58,16 +60,14 @@ class Level:
 
         self.reset_player_and_camera()
 
-    def reset_player_and_camera(self, spawn_position=(0, 0)):
+    def reset_player_and_camera(self):
         """Reset shared gameplay state for this level."""
         if self.tilemap is None:
             return
         self.camera.set_level_bounds(self.tilemap.pixel_width, self.tilemap.pixel_height)
         self.player.set_level_bounds(self.tilemap.pixel_width, self.tilemap.pixel_height)
-        self.player.reset_position(*spawn_position)
-        self.camera.camera_pos.update(0, 0)
-        self.camera.target_base_y = None
-        self.camera.camera.topleft = (0, 0)
+        self.player.reset_position(*self.spawn_position)
+        self.camera.reset(self.player)
 
     def on_enter(self):
         """Prepare this level when it becomes the active scene."""

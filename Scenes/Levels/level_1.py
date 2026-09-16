@@ -20,7 +20,7 @@ class Level1(Level):
 
     def check_completion_condition(self):
         """Return whether the level is completed."""
-        if self.player.rect.x > 4515:
+        if self.player.rect.x > 9200:
             print("Level 1 completed!")
             return True
 
