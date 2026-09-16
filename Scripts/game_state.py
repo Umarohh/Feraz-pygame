@@ -171,6 +171,10 @@ class PauseState(GameState):
 
 # --- Game Over State ---
 class GameOverState(GameState):
+    def __init__(self, manager, screen):
+        super().__init__(manager, screen)
+        self.image = pygame.image.load("Assets/Universal/UI/End/gameover.png").convert_alpha()
+
     def handle_events(self, events):
         for event in events:
             if event.type == KEYDOWN and event.key == K_RETURN:
@@ -180,11 +184,5 @@ class GameOverState(GameState):
         pass
 
     def update_graphics(self):
-        title_font = pygame.font.Font(None, 88)
-        text_font = pygame.font.Font(None, 42)
-        title = title_font.render("GAME OVER", True, (255, 255, 255))
-        prompt = text_font.render("ENTER  Main Menu", True, (255, 255, 255))
-        center_x = self.screen.get_width() // 2
-        self.screen.blit(title, title.get_rect(center=(center_x, 280)))
-        self.screen.blit(prompt, prompt.get_rect(center=(center_x, 390)))
+        self.screen.blit(self.image, (0, 0))
 
