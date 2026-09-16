@@ -8,7 +8,7 @@ A 2D scrolling platformer built with Python and Pygame. Story, cutscenes, all ar
 
 ## Download
 
-Grab `Feraz.exe` from the [latest release](https://github.com/Umarohh/Feraz-ICS4U-Game/releases/latest) — no Python install needed (Windows only).
+Grab `Feraz.exe` from the [latest release](https://github.com/Umarohh/Feraz-pygame/releases/latest) — no Python install needed (Windows only).
 
 Windows SmartScreen may warn about an unsigned app the first time: click **More info → Run anyway**.
 
